@@ -14,28 +14,22 @@ class ViewController: UIViewController {
     var searchFilter = [FetchedContact]()
     var isSearching = false
     
-    @IBAction func didChangeLayout(_ sender: UISwitch) {
-        if sender.isOn {
-
-        } else {
-            contactTable.register(UINib(nibName: "ConatctViewCell", bundle: nil), forCellReuseIdentifier: "cell")
-            contactTable.reloadData()
-        }
-    }
+    @IBOutlet weak var contactTable: UICollectionView!
     private let imageView : UIImageView = {
         let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 150, height: 150))
         imageView.image = UIImage(named: "Image")
         return imageView
     }()
-    @IBOutlet weak var contactTable: UITableView!
+   
     @IBOutlet weak var searchBar: UISearchBar!
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(imageView)
         title = "Contact Application"
-        fetchContacts()
-        contactTable.register(UINib(nibName: "ConatctViewCell", bundle: nil), forCellReuseIdentifier: "cell")
+        contactTable.register(UINib(nibName: "GridCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "collectioncell")
         contactTable.reloadData()
+        fetchContacts()
+
     }
     override func viewWillAppear(_ animated: Bool) {
         contactTable.reloadData()
@@ -64,8 +58,8 @@ class ViewController: UIViewController {
 
 
 }
-extension ViewController : UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if isSearching {
             return searchFilter.count
         } else {
@@ -73,18 +67,17 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
         }
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = Bundle.main.loadNibNamed("ConatctViewCell", owner: self, options: nil)?.first as! ConatctViewCell
-        let cell = contactTable.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ConatctViewCell
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = contactTable.dequeueReusableCell(withReuseIdentifier: "collectioncell", for: indexPath) as! GridCollectionViewCell
 
         if isSearching {
             cell.namehandler.text = searchFilter[indexPath.row].firstName + " " + searchFilter[indexPath.row].lastName
-            cell.telephonehandler?.text = searchFilter[indexPath.row].telephone
+//            cell.telephonehandler?.text = searchFilter[indexPath.row].telephone
             cell.imagehandler.image = UIImage(data: searchFilter[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named : "def")
         } else {
         cell.namehandler.text = contacts[indexPath.row].firstName + " " + contacts[indexPath.row].lastName
         //tempName = contacts[indexPath.row].firstName + " " + contacts[indexPath.row].lastName
-        cell.telephonehandler?.text = contacts[indexPath.row].telephone
+//        cell.telephonehandler?.text = contacts[indexPath.row].telephone
         //tempMobile = contacts[indexPath.row].telephone
         cell.imagehandler.image = UIImage(data: contacts[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named: "def")!
          
@@ -93,7 +86,7 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
         }
         return cell
     }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let viewController = storyboard?.instantiateViewController(identifier: "DetailsViewController") as! DetailsViewController
         if isSearching {
             viewController.contactD = searchFilter

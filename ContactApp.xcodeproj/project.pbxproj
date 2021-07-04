@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		52385EA9268EFAFC002756D9 /* AddContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52385EA8268EFAFC002756D9 /* AddContactViewController.swift */; };
+		52E0C26526910401003330DD /* GridCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E0C26326910401003330DD /* GridCollectionViewCell.swift */; };
+		52E0C26626910401003330DD /* GridCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 52E0C26426910401003330DD /* GridCollectionViewCell.xib */; };
 		52FEF27F268DA26F0042C888 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FEF27E268DA26F0042C888 /* AppDelegate.swift */; };
 		52FEF281268DA26F0042C888 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FEF280268DA26F0042C888 /* SceneDelegate.swift */; };
 		52FEF283268DA26F0042C888 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FEF282268DA26F0042C888 /* ViewController.swift */; };
@@ -42,6 +44,8 @@
 
 /* Begin PBXFileReference section */
 		52385EA8268EFAFC002756D9 /* AddContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddContactViewController.swift; sourceTree = "<group>"; };
+		52E0C26326910401003330DD /* GridCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridCollectionViewCell.swift; sourceTree = "<group>"; };
+		52E0C26426910401003330DD /* GridCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GridCollectionViewCell.xib; sourceTree = "<group>"; };
 		52FEF27B268DA26F0042C888 /* ContactApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ContactApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		52FEF27E268DA26F0042C888 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		52FEF280268DA26F0042C888 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -116,6 +120,8 @@
 				52FEF282268DA26F0042C888 /* ViewController.swift */,
 				52FEF2BB268DA5A40042C888 /* FetchedContact.swift */,
 				52FEF284268DA26F0042C888 /* Main.storyboard */,
+				52E0C26326910401003330DD /* GridCollectionViewCell.swift */,
+				52E0C26426910401003330DD /* GridCollectionViewCell.xib */,
 				52385EA8268EFAFC002756D9 /* AddContactViewController.swift */,
 				52FEF2C0268DAC050042C888 /* DetailsViewController.swift */,
 				52FEF2B4268DA3A40042C888 /* ConatctViewCell.swift */,
@@ -252,6 +258,7 @@
 				52FEF28E268DA2710042C888 /* LaunchScreen.storyboard in Resources */,
 				52FEF28B268DA2710042C888 /* Assets.xcassets in Resources */,
 				52FEF286268DA26F0042C888 /* Main.storyboard in Resources */,
+				52E0C26626910401003330DD /* GridCollectionViewCell.xib in Resources */,
 				52FEF2B7268DA3A40042C888 /* ConatctViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -280,6 +287,7 @@
 				52FEF289268DA26F0042C888 /* ContactApp.xcdatamodeld in Sources */,
 				52FEF2B6268DA3A40042C888 /* ConatctViewCell.swift in Sources */,
 				52FEF2BC268DA5A40042C888 /* FetchedContact.swift in Sources */,
+				52E0C26526910401003330DD /* GridCollectionViewCell.swift in Sources */,
 				52FEF283268DA26F0042C888 /* ViewController.swift in Sources */,
 				52FEF2C1268DAC050042C888 /* DetailsViewController.swift in Sources */,
 				52385EA9268EFAFC002756D9 /* AddContactViewController.swift in Sources */,
