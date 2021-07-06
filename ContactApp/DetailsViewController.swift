@@ -47,6 +47,8 @@ class DetailsViewController: UIViewController {
     
     @IBAction func updatehandler(_ sender: Any) {
         let viewController = storyboard?.instantiateViewController(identifier: "AddContactViewController") as! AddContactViewController
+        viewController.currContact? = contactD[myIndex]
+        viewController.index = myIndex
         viewController.tempFirstName = contactD[myIndex].firstName
         viewController.tempLastName = contactD[myIndex].lastName
         viewController.tempTelephone = contactD[myIndex].telephone
@@ -76,9 +78,9 @@ extension DetailsViewController {
         
     }
     func didDeleteContact() {
-        
-        OperationQueue().addOperation{[unowned store] in
-          let predicate = CNContact.predicateForContacts(matchingName: self.contactD[self.myIndex].firstName)
+
+        OperationQueue().addOperation{[self, unowned store] in
+            let predicate = CNContact.predicateForContacts(matchingName: contactD[myIndex].telephone )
           let toFetch = [CNContactGivenNameKey]
 
           do{

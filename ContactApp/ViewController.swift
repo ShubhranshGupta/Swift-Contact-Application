@@ -13,26 +13,56 @@ let store = CNContactStore()
 class ViewController: UIViewController {
     var searchFilter = [FetchedContact]()
     var isSearching = false
-    
+    var isChangeLayout = true
     @IBOutlet weak var contactTable: UICollectionView!
     private let imageView : UIImageView = {
         let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 150, height: 150))
         imageView.image = UIImage(named: "Image")
         return imageView
     }()
-   
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "backsegue" {
+            let secondVC: AddContactViewController = segue.destination as! AddContactViewController
+            secondVC.delegate = self
+        }
+    }
     @IBOutlet weak var searchBar: UISearchBar!
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(imageView)
-        title = "Contact Application"
+        title = "Contact App"
         contactTable.register(UINib(nibName: "GridCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "collectioncell")
         contactTable.reloadData()
+        tableview.register(UINib(nibName: "ConatctViewCell", bundle: nil), forCellReuseIdentifier: "cell")
+        tableview.reloadData()
         fetchContacts()
-
+        
     }
+    
+    @IBOutlet weak var tableview: UITableView!
+    @IBAction func didChangeLayout(_ sender: UISegmentedControl) {
+        if sender.selectedSegmentIndex == 0{
+            contactTable.alpha = 0
+            tableview.alpha = 1
+            tableview.register(UINib(nibName: "ConatctViewCell", bundle: nil), forCellReuseIdentifier: "cell")
+            tableview.reloadData()
+            isChangeLayout = false
+        } else {
+            tableview.alpha = 0
+            contactTable.alpha = 1
+            contactTable.register(UINib(nibName: "GridCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "collectioncell")
+            contactTable.reloadData()
+            isChangeLayout = true
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
+        if isChangeLayout {
         contactTable.reloadData()
+        } else {
+            tableview.reloadData()
+        }
+        
         //contacts = Array(Set(contacts))
     }
     override func viewDidLayoutSubviews() {
@@ -58,6 +88,14 @@ class ViewController: UIViewController {
 
 
 }
+extension ViewController : MyDataSendingProtocol {
+    func sendDataToHomeViewController(myData: FetchedContact) {
+        contacts.append(myData)
+    }
+}
+
+
+//CollectionView Layout
 extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if isSearching {
@@ -68,18 +106,26 @@ extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource 
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = contactTable.dequeueReusableCell(withReuseIdentifier: "collectioncell", for: indexPath) as! GridCollectionViewCell
 
+        let cell = contactTable.dequeueReusableCell(withReuseIdentifier: "collectioncell", for: indexPath) as! GridCollectionViewCell
+        cell.layer.cornerRadius = 15.0
+        cell.layer.borderWidth = 0.2
+        cell.layer.shadowColor = UIColor.gray.cgColor
+        cell.layer.shadowOffset = CGSize(width: 0, height: 0)
+        cell.layer.shadowRadius = 5.0
+        cell.layer.shadowOpacity = 1
+        cell.layer.masksToBounds = false 
+        
         if isSearching {
             cell.namehandler.text = searchFilter[indexPath.row].firstName + " " + searchFilter[indexPath.row].lastName
 //            cell.telephonehandler?.text = searchFilter[indexPath.row].telephone
-            cell.imagehandler.image = UIImage(data: searchFilter[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named : "def")
+            cell.imagehandler.image = UIImage(data: searchFilter[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named : "default")
         } else {
         cell.namehandler.text = contacts[indexPath.row].firstName + " " + contacts[indexPath.row].lastName
         //tempName = contacts[indexPath.row].firstName + " " + contacts[indexPath.row].lastName
 //        cell.telephonehandler?.text = contacts[indexPath.row].telephone
         //tempMobile = contacts[indexPath.row].telephone
-        cell.imagehandler.image = UIImage(data: contacts[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named: "def")!
+        cell.imagehandler.image = UIImage(data: contacts[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named: "default")!
          
         //to select selection style
         //cell.selectionStyle = UITableViewCell.SelectionStyle.blue
@@ -129,16 +175,64 @@ extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource 
 //for search bar to search a string
 extension ViewController : UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        searchFilter = contacts.filter({ $0.fullName.lowercased().prefix(searchText.count) == searchText.lowercased() })
+        searchFilter = contacts.filter({ $0.firstName.lowercased().prefix(searchText.count) == searchText.lowercased() })
         isSearching = true
+        if isChangeLayout {
         contactTable.reloadData()
+        } else {
+            tableview.reloadData()
+        }
     }
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
         isSearching = false
+        if isChangeLayout {
         contactTable.reloadData()
+        } else {
+            tableview.reloadData()
+        }
     }
 }
+//Custom TableView Layout
+extension ViewController : UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if isSearching{
+            return searchFilter.count
+        } else {
+        return contacts.count
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-
+        let cell = tableview.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ConatctViewCell
+        
+        if isSearching {
+            cell.namehandler.text = searchFilter[indexPath.row].firstName + " " + searchFilter[indexPath.row].lastName
+            cell.telephonehandler?.text = searchFilter[indexPath.row].telephone
+            cell.imagehandler.image = UIImage(data: searchFilter[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named : "default")
+        } else {
+        cell.namehandler.text = contacts[indexPath.row].firstName + " " + contacts[indexPath.row].lastName
+        cell.telephonehandler?.text = contacts[indexPath.row].telephone
+        cell.imagehandler.image = UIImage(data: contacts[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named: "default")!
+         
+        //to select selection style
+        //cell.selectionStyle = UITableViewCell.SelectionStyle.blue
+        }
+            return cell
+        
+        
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let viewController = storyboard?.instantiateViewController(identifier: "DetailsViewController") as! DetailsViewController
+        if isSearching {
+            viewController.contactD = searchFilter
+        } else {
+            viewController.contactD = contacts
+        }
+        viewController.myIndex = indexPath.row
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+}
 
