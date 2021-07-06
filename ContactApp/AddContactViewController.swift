@@ -115,11 +115,11 @@ extension AddContactViewController {
 
         self.present(alert, animated: true, completion: nil)
     }
-    private func addContactInCache() {
-        let tempFullName = (firstName.text ?? "") + " " + (lastName.text ?? "")
-        let currentContact = FetchedContact(firstName: firstName.text ?? "", lastName: lastName.text ?? "", fullName: tempFullName, telephone: telephoneLabel.text ?? "", favicon: imageLabel.image?.pngData())
-        ContactApp.contacts.append(currentContact)
-    }
+//    private func addContactInCache() {
+//        let tempFullName = (firstName.text ?? "") + " " + (lastName.text ?? "")
+//        let currentContact = FetchedContact(firstName: firstName.text ?? "", lastName: lastName.text ?? "", fullName: tempFullName, telephone: telephoneLabel.text ?? "", favicon: imageLabel.image?.pngData())
+
+//    }
     func updateLabels() {
         firstName.text = tempFirstName
         lastName.text = tempLastName

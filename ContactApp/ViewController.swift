@@ -8,9 +8,10 @@
 import UIKit
 import Contacts
 
-var contacts = [FetchedContact]()
+var contacts : [FetchedContact] = []
 let store = CNContactStore()
 class ViewController: UIViewController {
+    
     var searchFilter = [FetchedContact]()
     var isSearching = false
     var isChangeLayout = true
@@ -24,6 +25,10 @@ class ViewController: UIViewController {
         if segue.identifier == "backsegue" {
             let secondVC: AddContactViewController = segue.destination as! AddContactViewController
             secondVC.delegate = self
+        }
+        if segue.identifier == "forwardsegue" {
+            let secondVC: DetailsViewController = segue.destination as! DetailsViewController
+            secondVC.refreshDelegate = self
         }
     }
     @IBOutlet weak var searchBar: UISearchBar!
@@ -91,6 +96,14 @@ class ViewController: UIViewController {
 extension ViewController : MyDataSendingProtocol {
     func sendDataToHomeViewController(myData: FetchedContact) {
         contacts.append(myData)
+    }
+}
+extension ViewController : RefreshDataDelegate {
+    func refreshDataToHomeViewController(currData: Int) {
+        if isSearching {
+            searchFilter.remove(at: currData)
+        }
+        contacts.remove(at : currData)
     }
 }
 
@@ -233,6 +246,23 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
         viewController.myIndex = indexPath.row
         navigationController?.pushViewController(viewController, animated: true)
     }
-    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteCell = initDeleteAction(at : indexPath)
+        return UISwipeActionsConfiguration(actions: [deleteCell])
+    }
+    func initDeleteAction(at indexPath : IndexPath) -> UIContextualAction {
+        //let currContact = contacts[indexPath.row]
+        let action = UIContextualAction(style: .destructive, title: "Delete") {
+            (action, view, completion) in
+            contacts.remove(at : indexPath.row)
+            self.tableview.deleteRows(at : [indexPath], with : .automatic)
+            completion(true)
+        }
+        //let theme : UIImage = UIImage(named : "🗑")
+        action.image = UIImage(named : "bin")
+        action.backgroundColor = .red
+        return action
+    }
+
 }
 
