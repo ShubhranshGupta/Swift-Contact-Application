@@ -7,13 +7,13 @@
 
 import UIKit
 import Contacts
-//protocol RefreshDataDelegate {
-//  func refreshData()
-//}
+protocol RefreshDataDelegate {
+    func refreshDataToHomeViewController(currData : Int)
+}
 class DetailsViewController: UIViewController {
     var contactD = [FetchedContact]()
     var myIndex = 0
-    //var viewDelegate: RefreshDataDelegate?
+    var refreshDelegate: RefreshDataDelegate?
     @IBOutlet weak var telephonehandler: UILabel!
     @IBOutlet weak var dphandler: UIImageView!
     @IBOutlet weak var namehandler: UILabel!
@@ -29,9 +29,9 @@ class DetailsViewController: UIViewController {
         let alert = UIAlertController(title: "Alert", message: "Do you really want to delete this contact?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
         }))
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { action in
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { [self] action in
             self.didDeleteContact()
-            
+            ContactApp.contacts.remove(at: myIndex)
             self.navigationController?.popViewController(animated: true)
         }))
         self.present(alert, animated: true, completion: nil)
@@ -114,7 +114,9 @@ extension DetailsViewController {
             print(err)
           }
         }
-        contacts.remove(at: myIndex)
+        if self.refreshDelegate != nil {
+            self.refreshDelegate?.refreshDataToHomeViewController(currData : myIndex)
+        }
         dismiss(animated: true, completion: nil)
     }
 }
