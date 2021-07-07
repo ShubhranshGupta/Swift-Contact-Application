@@ -63,6 +63,6 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSContactsUsageDescription</key>
-	<string>Please grant persmission to run the app</string>
+	<string>Please grant permission to run the app</string>
 </dict>
 </plist>

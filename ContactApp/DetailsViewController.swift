@@ -17,21 +17,19 @@ class DetailsViewController: UIViewController {
     @IBOutlet weak var telephonehandler: UILabel!
     @IBOutlet weak var dphandler: UIImageView!
     @IBOutlet weak var namehandler: UILabel!
+    @IBOutlet weak var emailhandler: UILabel!
+    @IBOutlet weak var deletebutton: UIButton!
     override func viewDidLoad() {
         super.viewDidLoad()
         customizeButton(buttonName: deletebutton)
         loadData()
-        //loadData()
-        // Do any additional setup after loading the view.
     }
-    @IBOutlet weak var emailhandler: UILabel!
     @IBAction func deletebutton(_ sender: Any) {
         let alert = UIAlertController(title: "Alert", message: "Do you really want to delete this contact?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
         }))
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { [self] action in
             self.didDeleteContact()
-            ContactApp.contacts.remove(at: myIndex)
             self.navigationController?.popViewController(animated: true)
         }))
         self.present(alert, animated: true, completion: nil)
@@ -43,7 +41,6 @@ class DetailsViewController: UIViewController {
         dphandler.image = UIImage(data : contactD[myIndex].favicon ?? Data("".utf8)) ?? UIImage(named: "def")
         emailhandler.text = "No Email Exist"
         }
-    @IBOutlet weak var deletebutton: UIButton!
     
     @IBAction func updatehandler(_ sender: Any) {
         let viewController = storyboard?.instantiateViewController(identifier: "AddContactViewController") as! AddContactViewController
@@ -58,6 +55,7 @@ class DetailsViewController: UIViewController {
 }
 
 extension DetailsViewController {
+    //various styles for button
     func customizeButton(buttonName : UIButton) {
         // change UIbutton propertie
 //        let c1GreenColor = (UIColor(red: -0.108958, green: 0.714926, blue: 0.758113, alpha: 1.0))
@@ -114,6 +112,7 @@ extension DetailsViewController {
             print(err)
           }
         }
+        //informing home screen about the change
         if self.refreshDelegate != nil {
             self.refreshDelegate?.refreshDataToHomeViewController(currData : myIndex)
         }

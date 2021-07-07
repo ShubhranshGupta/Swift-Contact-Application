@@ -14,5 +14,4 @@ struct FetchedContact {
     var fullName : String
     var telephone: String
     var favicon : Data?
-    //var email : String
 }
