@@ -19,12 +19,32 @@ class AddContactViewController: UIViewController {
     var tempTelephone : String = ""
     var tempImage : Data? = nil
     var isUpdate = false
+    @IBOutlet weak var setSaveButton: UIButton!
+    @IBOutlet weak var imageLabel: UIImageView!
+    @IBOutlet weak var firstName: UITextField!
+    @IBOutlet weak var errorLabel: UILabel!
+    @IBOutlet weak var telephoneLabel: UITextField!
+    @IBOutlet weak var lastName: UITextField!
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        setSaveButton.layer.cornerRadius = 10
         firstName.addTarget(self, action:#selector(willCheckAndDisplayErrorsForName(firstName:)), for: .editingChanged)
         telephoneLabel.addTarget(self, action:#selector(willCheckAndDisplayErrorsForTelephone(telephoneLabel:)), for: .editingChanged)
         updateLabels()
-        // Do any additional setup after loading the view.
+
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        let windowRect = self.view.window?.frame
+        let screenWidth = windowRect?.size.width
+        let screenHeight = windowRect?.size.height
+        let screenRect = UIScreen.main.bounds
+        let sWidth = screenRect.size.width
+        let sHeight = screenRect.size.height
+        //let leading = screenWidth*1.2 - screenWidth
+        self.imageLabel.frame = CGRect(x: -(screenWidth ?? sWidth/2), y: screenHeight ?? sHeight/2, width: screenWidth ?? sWidth, height: screenHeight ?? sHeight/5)
+        self.errorLabel.frame = CGRect(x: 0, y: 0, width: screenWidth ?? sWidth, height: 40)
+        self.setSaveButton.frame = CGRect(x: 0, y: 0, width: screenWidth ?? sWidth, height: screenHeight ?? sHeight/15)
     }
     @objc func willCheckAndDisplayErrorsForName(firstName : UITextField) {
         if firstName.text?.count ?? 0 < 3 {
@@ -40,37 +60,16 @@ class AddContactViewController: UIViewController {
             errorLabel.text = " "
         }
     }
-    @IBOutlet weak var imageLabel: UIImageView!
     @IBAction func saveContact(_ sender: Any) {
           if isUpdate {
              didUpdateContacts()
           } else {
              didStoreData()
           }
-        
-        
     }
-    @IBOutlet weak var firstName: UITextField!
-
-    @IBOutlet weak var errorLabel: UILabel!
-    @IBOutlet weak var telephoneLabel: UITextField!
-    
-    @IBOutlet weak var lastName: UITextField!
-    
-
-    
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    
-
-    
 }
 extension AddContactViewController {
     private func didStoreData() {
-        //let store = CNContactStore()
         let newContact = CNMutableContact()
         newContact.givenName = firstName.text ?? ""
         newContact.familyName = lastName.text ?? ""
@@ -91,6 +90,7 @@ extension AddContactViewController {
         } catch let err{
           print("Failed to save the contact. \(err)")
         }
+        //informing the homescreen about the change
         if self.delegate != nil {
             let tempFullName = (firstName.text ?? "") + " " + (lastName.text ?? "")
             let currentContact = FetchedContact(firstName: firstName.text ?? "", lastName: lastName.text ?? "", fullName: tempFullName, telephone: telephoneLabel.text ?? "", favicon: imageLabel.image?.pngData())
@@ -115,12 +115,7 @@ extension AddContactViewController {
 
         self.present(alert, animated: true, completion: nil)
     }
-//    private func addContactInCache() {
-//        let tempFullName = (firstName.text ?? "") + " " + (lastName.text ?? "")
-//        let currentContact = FetchedContact(firstName: firstName.text ?? "", lastName: lastName.text ?? "", fullName: tempFullName, telephone: telephoneLabel.text ?? "", favicon: imageLabel.image?.pngData())
-
-//    }
-    func updateLabels() {
+    private func updateLabels() {
         firstName.text = tempFirstName
         lastName.text = tempLastName
         telephoneLabel.text = tempTelephone
@@ -131,7 +126,7 @@ extension AddContactViewController {
         }
         isUpdate = true
     }
-    func didUpdateContacts() {
+   private func didUpdateContacts() {
         didDeleteContact()
         ContactApp.contacts.remove(at : index)
         didStoreData()
@@ -154,7 +149,6 @@ extension AddContactViewController {
               print("No contacts found")
               return
             }
-
             //only do this to the first contact matching our criteria
             guard let contact = contacts.first else{
               return

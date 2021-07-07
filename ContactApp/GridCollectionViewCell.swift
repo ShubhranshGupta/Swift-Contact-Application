@@ -8,7 +8,7 @@
 import UIKit
 
 class GridCollectionViewCell: UICollectionViewCell {
-
+   
     @IBOutlet weak var namehandler: UILabel!
     @IBOutlet weak var imagehandler: UIImageView!
     override func awakeFromNib() {

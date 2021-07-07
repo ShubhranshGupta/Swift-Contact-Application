@@ -11,7 +11,6 @@ class ConatctViewCell: UITableViewCell {
 
     @IBOutlet weak var telephonehandler: UILabel!
     @IBOutlet weak var namehandler: UILabel!
-    
     @IBOutlet weak var imagehandler: UIImageView!
     override func awakeFromNib() {
         super.awakeFromNib()

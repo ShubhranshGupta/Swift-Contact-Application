@@ -11,27 +11,12 @@ import Contacts
 var contacts : [FetchedContact] = []
 let store = CNContactStore()
 class ViewController: UIViewController {
-    
     var searchFilter = [FetchedContact]()
     var isSearching = false
     var isChangeLayout = true
     @IBOutlet weak var contactTable: UICollectionView!
-    private let imageView : UIImageView = {
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 150, height: 150))
-        imageView.image = UIImage(named: "Image")
-        return imageView
-    }()
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "backsegue" {
-            let secondVC: AddContactViewController = segue.destination as! AddContactViewController
-            secondVC.delegate = self
-        }
-        if segue.identifier == "forwardsegue" {
-            let secondVC: DetailsViewController = segue.destination as! DetailsViewController
-            secondVC.refreshDelegate = self
-        }
-    }
     @IBOutlet weak var searchBar: UISearchBar!
+    @IBOutlet weak var tableview: UITableView!
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(imageView)
@@ -40,11 +25,10 @@ class ViewController: UIViewController {
         contactTable.reloadData()
         tableview.register(UINib(nibName: "ConatctViewCell", bundle: nil), forCellReuseIdentifier: "cell")
         tableview.reloadData()
+        //to remove unnecessary cells from the tableview
+        tableview.tableFooterView = UIView(frame: .zero)
         fetchContacts()
-        
     }
-    
-    @IBOutlet weak var tableview: UITableView!
     @IBAction func didChangeLayout(_ sender: UISegmentedControl) {
         if sender.selectedSegmentIndex == 0{
             contactTable.alpha = 0
@@ -59,16 +43,6 @@ class ViewController: UIViewController {
             contactTable.reloadData()
             isChangeLayout = true
         }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        if isChangeLayout {
-        contactTable.reloadData()
-        } else {
-            tableview.reloadData()
-        }
-        
-        //contacts = Array(Set(contacts))
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -90,23 +64,37 @@ class ViewController: UIViewController {
             })
         
     }
-
-
-}
-extension ViewController : MyDataSendingProtocol {
-    func sendDataToHomeViewController(myData: FetchedContact) {
-        contacts.append(myData)
+    private let imageView : UIImageView = {
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 150, height: 150))
+        imageView.image = UIImage(named: "Image")
+        return imageView
+    }()
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "backsegue" {
+            let secondVC: AddContactViewController = segue.destination as! AddContactViewController
+            secondVC.delegate = self
+        }
+        if segue.identifier == "forwardsegue" {
+            let secondVC: DetailsViewController = segue.destination as! DetailsViewController
+            secondVC.refreshDelegate = self
+        }
     }
 }
-extension ViewController : RefreshDataDelegate {
+extension ViewController : MyDataSendingProtocol, RefreshDataDelegate {
     func refreshDataToHomeViewController(currData: Int) {
         if isSearching {
             searchFilter.remove(at: currData)
         }
         contacts.remove(at : currData)
+        contactTable.reloadData()
+        tableview.reloadData()
+    }
+    func sendDataToHomeViewController(myData: FetchedContact) {
+        contacts.append(myData)
+        contactTable.reloadData()
+        tableview.reloadData()
     }
 }
-
 
 //CollectionView Layout
 extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource {
@@ -131,15 +119,10 @@ extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource 
         
         if isSearching {
             cell.namehandler.text = searchFilter[indexPath.row].firstName + " " + searchFilter[indexPath.row].lastName
-//            cell.telephonehandler?.text = searchFilter[indexPath.row].telephone
             cell.imagehandler.image = UIImage(data: searchFilter[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named : "default")
         } else {
         cell.namehandler.text = contacts[indexPath.row].firstName + " " + contacts[indexPath.row].lastName
-        //tempName = contacts[indexPath.row].firstName + " " + contacts[indexPath.row].lastName
-//        cell.telephonehandler?.text = contacts[indexPath.row].telephone
-        //tempMobile = contacts[indexPath.row].telephone
-        cell.imagehandler.image = UIImage(data: contacts[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named: "default")!
-         
+        cell.imagehandler.image = UIImage(data: contacts[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named: "default")
         //to select selection style
         //cell.selectionStyle = UITableViewCell.SelectionStyle.blue
         }
@@ -155,35 +138,6 @@ extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource 
         viewController.myIndex = indexPath.row
         navigationController?.pushViewController(viewController, animated: true)
     }
-    private func fetchContacts() {
-        // 1.
-        let store = CNContactStore()
-        store.requestAccess(for: .contacts) { (granted, error) in
-            if let error = error {
-                print("failed to request access", error)
-                return
-            }
-            if granted {
-                let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey, CNContactImageDataKey]
-                let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
-                do {
-                    // 3.
-                    try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
-                        contacts.append(FetchedContact(firstName: contact.givenName, lastName: contact.familyName, fullName: contact.givenName + " " + contact.familyName  , telephone: contact.phoneNumbers.first?.value.stringValue ?? "", favicon : (contact.imageData) ?? Data("".utf8)))
-                        
-                    })
-                    
-                } catch let error {
-                    print("Failed to enumerate contact", error)
-                }
-            } else {
-                print("access denied")
-            }
-            
-        }
-        
-    }
-    
 }
 //for search bar to search a string
 extension ViewController : UISearchBarDelegate {
@@ -217,9 +171,7 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
         let cell = tableview.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ConatctViewCell
-        
         if isSearching {
             cell.namehandler.text = searchFilter[indexPath.row].firstName + " " + searchFilter[indexPath.row].lastName
             cell.telephonehandler?.text = searchFilter[indexPath.row].telephone
@@ -227,8 +179,7 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
         } else {
         cell.namehandler.text = contacts[indexPath.row].firstName + " " + contacts[indexPath.row].lastName
         cell.telephonehandler?.text = contacts[indexPath.row].telephone
-        cell.imagehandler.image = UIImage(data: contacts[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named: "default")!
-         
+        cell.imagehandler.image = UIImage(data: contacts[indexPath.row].favicon ?? Data("".utf8)) ?? UIImage(named: "default")
         //to select selection style
         //cell.selectionStyle = UITableViewCell.SelectionStyle.blue
         }
@@ -251,18 +202,47 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
         return UISwipeActionsConfiguration(actions: [deleteCell])
     }
     func initDeleteAction(at indexPath : IndexPath) -> UIContextualAction {
-        //let currContact = contacts[indexPath.row]
-        let action = UIContextualAction(style: .destructive, title: "Delete") {
+        let action = UIContextualAction(style: .destructive, title: "Delete") { [self]
             (action, view, completion) in
+            if isSearching {
+                searchFilter.remove(at: indexPath.row)
+            }
             contacts.remove(at : indexPath.row)
             self.tableview.deleteRows(at : [indexPath], with : .automatic)
             completion(true)
         }
-        //let theme : UIImage = UIImage(named : "🗑")
         action.image = UIImage(named : "bin")
         action.backgroundColor = .red
         return action
     }
 
 }
-
+//to fetch contact from CNContactStore
+extension ViewController {
+    private func fetchContacts() {
+        let store = CNContactStore()
+        store.requestAccess(for: .contacts) { (granted, error) in
+            if let error = error {
+                print("failed to request access", error)
+                return
+            }
+            if granted {
+                let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey, CNContactImageDataKey]
+                let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
+                do {
+                    try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
+                        contacts.append(FetchedContact(firstName: contact.givenName, lastName: contact.familyName, fullName: contact.givenName + " " + contact.familyName  , telephone: contact.phoneNumbers.first?.value.stringValue ?? "", favicon : (contact.imageData) ?? Data("".utf8)))
+                        
+                    })
+                    
+                } catch let error {
+                    print("Failed to enumerate contact", error)
+                }
+            } else {
+                print("access denied")
+            }
+            
+        }
+        
+    }
+}
